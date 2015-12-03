@@ -2,11 +2,15 @@ package it.vertyze.vertyzebeaconbatteryscanner;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ForceScanConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
@@ -35,6 +39,11 @@ public class MainActivity extends ActionBarActivity implements ProximityManager.
     private ProximityManager proximityManager;
     private ScanContext scanContext;
     private List<IBeaconDevice> deviceList;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +68,9 @@ public class MainActivity extends ActionBarActivity implements ProximityManager.
                 .setForceScanConfiguration(ForceScanConfiguration.DEFAULT)
                 .setScanPeriod(new ScanPeriod(TimeUnit.SECONDS.toMillis(5), 0))
                 .build();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -84,17 +96,32 @@ public class MainActivity extends ActionBarActivity implements ProximityManager.
     }
 
 
-
     @Override
     public void onStart() {
         super.onStart();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://it.vertyze.vertyzebeaconbatteryscanner/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
-        if(!BluetoothUtils.isBluetoothEnabled()){
+        if (!BluetoothUtils.isBluetoothEnabled()) {
             final Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent, REQUEST_CODE_ENABLE_BLUETOOTH);
         } else {
@@ -104,7 +131,7 @@ public class MainActivity extends ActionBarActivity implements ProximityManager.
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         proximityManager.finishScan();
     }
@@ -112,20 +139,36 @@ public class MainActivity extends ActionBarActivity implements ProximityManager.
     @Override
     public void onStop() {
         super.onStop();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://it.vertyze.vertyzebeaconbatteryscanner/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.disconnect();
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
         proximityManager.disconnect();
         proximityManager = null;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        switch (requestCode){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
             case REQUEST_CODE_ENABLE_BLUETOOTH:
-                if(resultCode == RESULT_OK){
+                if (resultCode == RESULT_OK) {
                     initializeScan();
                 }
                 break;
@@ -159,10 +202,12 @@ public class MainActivity extends ActionBarActivity implements ProximityManager.
     public void onEvent(BluetoothDeviceEvent event) {
         IBeaconDeviceEvent iBeaconDeviceEvent = (IBeaconDeviceEvent) event;
         deviceList = iBeaconDeviceEvent.getDeviceList();
+        MainActivityFragment mainFragment = (MainActivityFragment) getFragmentManager().findFragmentById(R.id.fragment_main);
+        mainFragment.updateBeaconList(deviceList);
     }
 
-    private void initializeScan(){
-        proximityManager.initializeScan(scanContext, new OnServiceReadyListener(){
+    private void initializeScan() {
+        proximityManager.initializeScan(scanContext, new OnServiceReadyListener() {
 
             /**
              * Called when Object implementing ServiceConnector interface successfully
@@ -182,7 +227,7 @@ public class MainActivity extends ActionBarActivity implements ProximityManager.
         });
     }
 
-    public List<IBeaconDevice> getDeviceList(){
+    public List<IBeaconDevice> getDeviceList() {
         return this.deviceList;
     }
 

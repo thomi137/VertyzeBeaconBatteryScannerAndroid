@@ -7,7 +7,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.kontakt.sdk.android.common.model.Beacon;
 import com.kontakt.sdk.android.common.profile.IBeaconDevice;
+
+import java.util.List;
 
 /**
  * Created by thomasprosser on 19.11.15.
@@ -15,13 +18,14 @@ import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 public class BeaconArrayAdapter extends ArrayAdapter<IBeaconDevice> {
 
     private final Context context;
-    private final IBeaconDevice[] values;
+    private final List<IBeaconDevice> listValues;
 
-    public BeaconArrayAdapter(Context context, IBeaconDevice[] values){
+    public BeaconArrayAdapter(Context context, List<IBeaconDevice> values){
         super(context, R.layout.beacon_row_layout, values);
         this.context = context;
-        this.values = values;
+        this.listValues = values;
     }
+
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
@@ -30,7 +34,7 @@ public class BeaconArrayAdapter extends ArrayAdapter<IBeaconDevice> {
         TextView beaconIdTextView = (TextView) rowView.findViewById(R.id.beacon_row_layout_beacon_id);
         TextView beaconBatteryPowerTextView = (TextView) rowView.findViewById(R.id.beacon_row_layout_beacon_power);
 
-        IBeaconDevice beacon = values[position];
+        IBeaconDevice beacon = listValues.get(position);
         beaconIdTextView.setText(beacon.getUniqueId());
         beaconBatteryPowerTextView.setText(beacon.getBatteryPower());
 
